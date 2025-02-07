@@ -41,7 +41,7 @@ router.post('/upload', ensureAuthenticated, upload.single('image'), wrapAsync(as
         }
 
         // Use Tesseract.js with the CDN instead of loading eng.traineddata locally
-        const { data: { text } } = await Tesseract.recognize(req.file.buffer, 'eng', {
+        const { data: { text } } = await Tesseract.recognize(req.file.path, 'eng', {
             logger: (m) => {
                 if (m.status === 'done') console.log("OCR Completed!");
             },
