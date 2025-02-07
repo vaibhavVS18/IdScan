@@ -120,7 +120,7 @@ app.use((req,res,next)=>{
 // 80646328450-o10m6ac6pjmd2s3c64fri26el1hi1960.apps.googleusercontent.com
 //...................................................
 let port =3000;
-app.listen(port, ()=>{
+app.listen(port,'0.0.0.0', ()=>{
     console.log(`app is listening on port${port}`);
 }); 
 
