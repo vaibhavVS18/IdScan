@@ -45,7 +45,7 @@ router.post('/upload', ensureAuthenticated, upload.single('image'), wrapAsync(as
             logger: (m) => {
                 if (m.status === 'done') console.log("OCR Completed!");
             },
-            langPath: 'https://tessdata.projectnaptha.com/4.0.0_best/', // Use remote language file
+            langPath: 'https://tessdata.projectnaptha.com/4.0.0_fast/', // Use remote language file
         });
 
         let extractedText = text;

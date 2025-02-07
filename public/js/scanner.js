@@ -140,33 +140,6 @@ async function startScanning() {
 //   }
 // };
 
-// function dataURItoBlob(dataURI) {
-//     const byteString = atob(dataURI.split(',')[1]);
-//     const arrayBuffer = new ArrayBuffer(byteString.length);
-//     const uintArray = new Uint8Array(arrayBuffer);
-//     for (let i = 0; i < byteString.length; i++) {
-//         uintArray[i] = byteString.charCodeAt(i);
-//     }
-//     return new Blob([arrayBuffer], { type: 'image/jpeg' });
-// }
-
-// async function setupWebcam() {
-//     const video = document.getElementById('webcam');
-//     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-//     video.srcObject = stream;
-//     video.style.display = 'block';  // Show video when scanning starts
-// }
-
-// function captureFrame() {
-//     const video = document.getElementById('webcam');
-//     const canvas = document.createElement('canvas');
-//     const context = canvas.getContext('2d');
-//     canvas.width = video.videoWidth;
-//     canvas.height = video.videoHeight;
-//     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-//     return canvas.toDataURL('image/jpeg');
-// }
-
 
 // async function startScanning() {
 //     document.getElementById('result').textContent = 'Scanning for Roll No...';
