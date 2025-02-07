@@ -1,0 +1,22 @@
+/* update button */
+.update-btn{
+    background-color: #fe424d !important;
+    border: none !important;
+}
+
+.flash {
+    position: fixed;
+    top: 12%;
+    left: 25%;
+    transform: translateX(-50%);
+    width: 50%;
+    z-index: 1200; /* Ensure it appears above other content */
+    /* margin-top: 10px; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-btn{
+    background-color: #330c9d !important;
+    border: none !important;
+}
+
