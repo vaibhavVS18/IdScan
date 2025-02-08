@@ -4,11 +4,58 @@ function openPopup(rollNo) {
     // document.getElementById('dest').textContent = "block";
     document.getElementById('topPopup').style.display = "block";
   }
-  function closePopup() {
+
+function closePopup() {
     document.getElementById('topPopup').style.display = "none";
   }
 
-let scannerInterval;
+
+// function dataURItoBlob(dataURI) {
+//     const byteString = atob(dataURI.split(',')[1]);
+//     const arrayBuffer = new ArrayBuffer(byteString.length);
+//     const uintArray = new Uint8Array(arrayBuffer);
+//     for (let i = 0; i < byteString.length; i++) {
+//         uintArray[i] = byteString.charCodeAt(i);
+//     }
+//     return new Blob([arrayBuffer], { type: 'image/jpeg' });
+// }
+
+async function submitDestination() {
+    // closePopup();
+    let destination = document.getElementById("destination").value;
+    // let otherDestination = document.getElementById("otherDestination").value;
+    // let finalDestination = destination === "Other" ? otherDestination : destination;
+    try {
+        let entry =await fetch("/camera", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roll_no: currentRollNo, destination: destination })
+        });
+
+        window.location.href = '/camera';
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+async function setupWebcam() {
+    const video = document.getElementById('webcam');
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+    video.style.display = 'block';  // Show video when scanning starts
+}
+
+function captureFrame() {
+    const video = document.getElementById('webcam');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg');
+}
+
+
 async function startScanning() {
     document.getElementById('result').textContent = 'Scanning for Roll No...';
 
@@ -17,16 +64,13 @@ async function startScanning() {
     }
 
     scannerInterval = setInterval(async () => {
-        const capturedImage = captureFrame();
-
-        const formData = new FormData();
-        formData.append('image', dataURItoBlob(capturedImage));
-
+        const capturedImage = captureFrame(); // Gets Base64 image directly
 
         try {
             const response = await fetch('/upload', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: capturedImage })  // ✅ Send Base64 directly
             });
 
             const result = await response.text();
@@ -41,29 +85,25 @@ async function startScanning() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roll_no: rollNo }),
                 });
+
                 let entryResponse = await putResponse.json();
 
-                if (entryResponse.requireDestination) {                                    // for dest.
-                    openPopup(rollNo);  // Show popup if destination is needed
-                    // window.location.href = '/camera';
-                }
-                else if (putResponse.ok) {
+                if (entryResponse.requireDestination) {
+                    openPopup(rollNo); // Show popup if destination is needed
+                } else if (putResponse.ok) {
                     if (entryResponse.message === "Entry already exists") {
                         document.getElementById("result").textContent = "Entry already exists for this roll no.";
                         window.location.href = '/camera';
-                    } 
+                    }
                 }
-                // else {
-                //     document.getElementById('result').textContent = 'Student not found.';
-                // }
             }
-// roll no. not found !!
         } 
         catch (error) {
             document.getElementById('result').textContent = 'Error: ' + error.message;
         }
     }, 1400);
 }
+
 
 
 // // let scannerInterval;

@@ -7,7 +7,7 @@ if(process.env.NODE_ENV != "production"){
 const express = require("express");
 const router = express.Router();
 
-const upload = require("../multerConfig.js");
+// const upload = require("../multerConfig.js");
 
 const wrapAsync = require("../utils/wrapAsync.js");
 const Tesseract = require('tesseract.js');
@@ -19,6 +19,9 @@ const Temp = require("../models/temp.js");
 const { ensureAuthenticated} = require('../middleware.js');
 const say = require("say");
 
+// const path = require('path');
+// const os = require("os");
+// const multer = require('multer');
 //........................................................
 // router.route("/extract-text")
 //     .post(upload.single('image'),ensureAuthenticated, (req, res) => {
@@ -35,14 +38,35 @@ const say = require("say");
 //       });
 
 
-router.post('/upload', ensureAuthenticated, upload.single('image'), wrapAsync(async (req, res) => {
+//........
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, os.tmpdir()); // Store images in the system's temp directory
+//     },
+//     filename: function (req, file, cb) {
+//       cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+//     }
+//   });
+  
+
+// const upload = multer({ storage });
+
+router.post('/upload', ensureAuthenticated, wrapAsync(async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).send('No image uploaded');
+        // if (!req.file) {
+        //     return res.status(400).send('No image uploaded');
+        // }
+        const { image } = req.body;  // Get Base64 Image from frontend
+        if (!image) {
+            return res.status(400).send('No image provided');
         }
 
+        // Convert Base64 to Buffer for OCR Processing
+        const base64Data = image.replace(/^data:image\/(png|jpeg);base64,/, "");
+        const buffer = Buffer.from(base64Data, 'base64');
+
         // Use Tesseract.js with the CDN instead of loading eng.traineddata locally
-        const { data: { text } } = await Tesseract.recognize(req.file.path, 'eng', {
+        const { data: { text } } = await Tesseract.recognize(buffer, 'eng', {
             logger: (m) => {
                 if (m.status === 'done') console.log("OCR Completed!");
             },
@@ -89,68 +113,42 @@ router.post('/upload', ensureAuthenticated, upload.single('image'), wrapAsync(as
         res.status(500).send('Server Error: ' + error.message);
     }
 }));
+//.......................
 
-// // Route to handle image upload and OCR
-// router.post('/upload',ensureAuthenticated, upload.single('image'), wrapAsync(async (req, res) => {
+// router.post('/upload', ensureAuthenticated, wrapAsync(async (req, res) => {
 //     try {
-//       if (!req.file) {
-//         return res.status(400).send('No image uploaded');
-//       }
-  
-//       // Determine file extension based on MIME type
-//       let fileExtension = '';
-//       if (req.file.mimetype === 'image/jpeg') {
-//         fileExtension = '.jpg';
-//       } else if (req.file.mimetype === 'image/png') {
-//         fileExtension = '.png';
-//       } else {
-//         return res.status(400).send('Unsupported file type');
-//       }
-  
-//       // Call OCR service to process the image
-//       const extractedText = await processImage(req.file.buffer, fileExtension);
-//       console.log(extractedText);
-//       // Extract roll number from OCR result
-//               let lines = extractedText.split('\n');
-      
-//               function splitWords(textArray) {
-//                   return textArray
-//                       .map(line => line.split(/\s+/))
-//                       .flat()
-//                       .filter(word => word.trim() !== '');
-//               }
-      
-//               lines = splitWords(lines);
-//               console.log(lines);
-      
-//               function contains(arr, searchItems) {
-//                   return searchItems.some(item => arr.includes(item));
-//               }
-      
-//               const searchItems = [
-//                   process.env.FIRST, process.env.SECOND, process.env.THIRD, process.env.FOURTH,
-//                   process.env.FIFTH, process.env.SIXTH, process.env.SEVEN, process.env.EIGHT,
-//                   process.env.NINE, process.env.TEN, process.env.ELEVEN
-//               ];
-      
-//               const output = lines.find(line => line.length === 5 && line.startsWith('2') && !isNaN(line));
-//               console.log(output);
-      
-//               if (output) {
-//                   if (contains(lines, searchItems)) {
-//                       return res.send('Success: Roll No found: ' + output);
-//                   }
-//               } else {
-//                   return res.status(404).send('Roll No not found');
-//               }
-      
-//           } catch (error) {
-//               console.error(error);
-//               res.status(500).send('Server Error: ' + error.message);
-//           }
-//       }));
+//         const { image } = req.body;  // Get Base64 Image from frontend
+//         if (!image) {
+//             return res.status(400).send('No image provided');
+//         }
 
+//         // Convert Base64 to Buffer for OCR Processing
+//         const base64Data = image.replace(/^data:image\/(png|jpeg);base64,/, "");
+//         const buffer = Buffer.from(base64Data, 'base64');
 
+//         // OCR Processing using Tesseract.js
+//         const { data: { text } } = await Tesseract.recognize(buffer, 'eng', {
+//             logger: (m) => { if (m.status === 'done') console.log("OCR Completed!"); }
+//         });
+
+//         let extractedText = text.replace(/\s+/g, ''); // Remove spaces
+//         console.log("Extracted Text:", extractedText);
+
+//         // Finding a 5-digit number that starts with '2'
+//         const match = extractedText.match(/\b2\d{4}\b/);
+//         const foundNumber = match ? match[0] : null;
+
+//         if (foundNumber) {
+//             return res.send(`Success: Roll No found: ${foundNumber}`);
+//         } else {
+//             return res.status(404).send('Roll No not found');
+//         }
+
+//     } catch (error) {
+//         console.error("OCR Error:", error);
+//         res.status(500).send('Server Error: ' + error.message);
+//     }
+// }));
 
 router.route("/camera")
     .get(ensureAuthenticated, wrapAsync(async (req,res)=>{
@@ -227,3 +225,64 @@ router.route("/camera")
     }));
 
 module.exports = router;
+
+
+// // Route to handle image upload and OCR
+// router.post('/upload',ensureAuthenticated, upload.single('image'), wrapAsync(async (req, res) => {
+//     try {
+//       if (!req.file) {
+//         return res.status(400).send('No image uploaded');
+//       }
+  
+//       // Determine file extension based on MIME type
+//       let fileExtension = '';
+//       if (req.file.mimetype === 'image/jpeg') {
+//         fileExtension = '.jpg';
+//       } else if (req.file.mimetype === 'image/png') {
+//         fileExtension = '.png';
+//       } else {
+//         return res.status(400).send('Unsupported file type');
+//       }
+  
+//       // Call OCR service to process the image
+//       const extractedText = await processImage(req.file.buffer, fileExtension);
+//       console.log(extractedText);
+//       // Extract roll number from OCR result
+//               let lines = extractedText.split('\n');
+      
+//               function splitWords(textArray) {
+//                   return textArray
+//                       .map(line => line.split(/\s+/))
+//                       .flat()
+//                       .filter(word => word.trim() !== '');
+//               }
+      
+//               lines = splitWords(lines);
+//               console.log(lines);
+      
+//               function contains(arr, searchItems) {
+//                   return searchItems.some(item => arr.includes(item));
+//               }
+      
+//               const searchItems = [
+//                   process.env.FIRST, process.env.SECOND, process.env.THIRD, process.env.FOURTH,
+//                   process.env.FIFTH, process.env.SIXTH, process.env.SEVEN, process.env.EIGHT,
+//                   process.env.NINE, process.env.TEN, process.env.ELEVEN
+//               ];
+      
+//               const output = lines.find(line => line.length === 5 && line.startsWith('2') && !isNaN(line));
+//               console.log(output);
+      
+//               if (output) {
+//                   if (contains(lines, searchItems)) {
+//                       return res.send('Success: Roll No found: ' + output);
+//                   }
+//               } else {
+//                   return res.status(404).send('Roll No not found');
+//               }
+      
+//           } catch (error) {
+//               console.error(error);
+//               res.status(500).send('Server Error: ' + error.message);
+//           }
+//       }));

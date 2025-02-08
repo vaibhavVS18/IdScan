@@ -1,21 +1,21 @@
-async function submitDestination() {
-    // closePopup();
-    let destination = document.getElementById("destination").value;
-    // let otherDestination = document.getElementById("otherDestination").value;
-    // let finalDestination = destination === "Other" ? otherDestination : destination;
-    try {
-        let entry =await fetch("/camera", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ roll_no: currentRollNo, destination: destination })
-        });
+// async function submitDestination() {
+//     // closePopup();
+//     let destination = document.getElementById("destination").value;
+//     // let otherDestination = document.getElementById("otherDestination").value;
+//     // let finalDestination = destination === "Other" ? otherDestination : destination;
+//     try {
+//         let entry =await fetch("/camera", {
+//             method: "PUT",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ roll_no: currentRollNo, destination: destination })
+//         });
 
-        window.location.href = '/camera';
+//         window.location.href = '/camera';
 
-    } catch (error) {
-        console.error("Error:", error);
-    }
-}
+//     } catch (error) {
+//         console.error("Error:", error);
+//     }
+// }
 
 
 
