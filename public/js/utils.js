@@ -9,10 +9,10 @@ function dataURItoBlob(dataURI) {
 }
 
 //  voice generate for flash msg
-document.addEventListener('DOMContentLoaded', () => {
-    const flashMessage = document.querySelector('.flash-message');
-    if (flashMessage) {
-        const messageText = flashMessage.textContent || flashMessage.innerText;
-        speakText(messageText);
-    }
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     const flashMessage = document.querySelector('.flash-message');
+//     if (flashMessage) {
+//         const messageText = flashMessage.textContent || flashMessage.innerText;
+//         speakText(messageText);
+//     }
+// });
