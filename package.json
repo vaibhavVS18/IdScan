@@ -1,7 +1,7 @@
 {
-  "engine":{
+  "engine": {
     "node": "v22.8.0"
-},
+  },
   "name": "justscan",
   "version": "1.0.0",
   "main": "app.js",
@@ -30,6 +30,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "say": "^0.16.0",
+    "sharp": "^0.33.5",
     "tesseract.js": "^6.0.0"
   }
 }

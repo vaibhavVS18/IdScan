@@ -16,8 +16,9 @@ const Student = require("../models/student.js");
 const Entry = require("../models/entry.js");
 const Temp = require("../models/temp.js");
 
-const { ensureAuthenticated, isOwner, isGuard} = require('../middleware.js');
+const { ensureAuthenticated} = require('../middleware.js');
 const say = require("say");
+
 //........................................................
 // router.route("/extract-text")
 //     .post(upload.single('image'),ensureAuthenticated, (req, res) => {
@@ -45,8 +46,10 @@ router.post('/upload', ensureAuthenticated, upload.single('image'), wrapAsync(as
             logger: (m) => {
                 if (m.status === 'done') console.log("OCR Completed!");
             },
-            langPath: 'https://tessdata.projectnaptha.com/4.0.0_fast/', // Use remote language file
+            // langPath: 'https://tessdata.projectnaptha.com/4.0.0_best/', // Use remote language file
+            langPath: 'https://tessdata.projectnaptha.com/3.02/', // Use remote language file
         });
+
 
         let extractedText = text;
         let lines = extractedText.split('\n');
@@ -87,6 +90,67 @@ router.post('/upload', ensureAuthenticated, upload.single('image'), wrapAsync(as
         res.status(500).send('Server Error: ' + error.message);
     }
 }));
+
+// // Route to handle image upload and OCR
+// router.post('/upload',ensureAuthenticated, upload.single('image'), wrapAsync(async (req, res) => {
+//     try {
+//       if (!req.file) {
+//         return res.status(400).send('No image uploaded');
+//       }
+  
+//       // Determine file extension based on MIME type
+//       let fileExtension = '';
+//       if (req.file.mimetype === 'image/jpeg') {
+//         fileExtension = '.jpg';
+//       } else if (req.file.mimetype === 'image/png') {
+//         fileExtension = '.png';
+//       } else {
+//         return res.status(400).send('Unsupported file type');
+//       }
+  
+//       // Call OCR service to process the image
+//       const extractedText = await processImage(req.file.buffer, fileExtension);
+//       console.log(extractedText);
+//       // Extract roll number from OCR result
+//               let lines = extractedText.split('\n');
+      
+//               function splitWords(textArray) {
+//                   return textArray
+//                       .map(line => line.split(/\s+/))
+//                       .flat()
+//                       .filter(word => word.trim() !== '');
+//               }
+      
+//               lines = splitWords(lines);
+//               console.log(lines);
+      
+//               function contains(arr, searchItems) {
+//                   return searchItems.some(item => arr.includes(item));
+//               }
+      
+//               const searchItems = [
+//                   process.env.FIRST, process.env.SECOND, process.env.THIRD, process.env.FOURTH,
+//                   process.env.FIFTH, process.env.SIXTH, process.env.SEVEN, process.env.EIGHT,
+//                   process.env.NINE, process.env.TEN, process.env.ELEVEN
+//               ];
+      
+//               const output = lines.find(line => line.length === 5 && line.startsWith('2') && !isNaN(line));
+//               console.log(output);
+      
+//               if (output) {
+//                   if (contains(lines, searchItems)) {
+//                       return res.send('Success: Roll No found: ' + output);
+//                   }
+//               } else {
+//                   return res.status(404).send('Roll No not found');
+//               }
+      
+//           } catch (error) {
+//               console.error(error);
+//               res.status(500).send('Server Error: ' + error.message);
+//           }
+//       }));
+
 
 
 router.route("/camera")
