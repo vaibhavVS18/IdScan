@@ -101,8 +101,12 @@ router.post('/upload', ensureAuthenticated, wrapAsync(async (req, res) => {
         console.log(output);
 
         if (output) {
-            if (contains(lines, searchItems)) {
-                return res.send('Success: Roll No found: ' + output);
+            const student = await Student.findOne({ roll_no: output });
+
+            if (student) {
+                if (contains(lines, searchItems)) {
+                    return res.send('Success: Roll No found: ' + output);
+                }
             }
         } else {
             return res.status(404).send('Roll No not found');

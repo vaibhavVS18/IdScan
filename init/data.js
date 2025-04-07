@@ -9,6 +9,7 @@ const students = [
   { roll_no: 23208, name: 'Mira Kapoor', hostel_name: 'Chitaghni' },
   { roll_no: 23209, name: 'Dev Patel', hostel_name: 'Jathragni' },
   { roll_no: 23210, name: 'Sanya Roy', hostel_name: 'Bhutagni' },
+  { roll_no: 23112, name: 'Arpit Kumar', hostel_name: 'Bhutagni' },
   { roll_no: 23211, name: 'Aarav Mehta', hostel_name: 'Chitaghni' },
   { roll_no: 23212, name: 'Ishaan Sharma', hostel_name: 'Jathragni' },
   { roll_no: 23213, name: 'Neha Gupta', hostel_name: 'Bhutagni' },

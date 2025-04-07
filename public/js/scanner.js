@@ -55,7 +55,7 @@ function captureFrame() {
     return canvas.toDataURL('image/jpeg');
 }
 
-
+// 1
 async function startScanning() {
     document.getElementById('result').textContent = 'Scanning for Roll No...';
 
@@ -76,6 +76,7 @@ async function startScanning() {
             const result = await response.text();
             document.getElementById('result').textContent = result;
 
+            console.log("....",result);
             if (result.includes('Roll No found')) {
                 clearInterval(scannerInterval);
 
