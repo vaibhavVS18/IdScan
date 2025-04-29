@@ -195,18 +195,30 @@ app.all("*", (req,res,next)=>{
   next(new expressError(404, "Page Not Found!"));
 });
 
-app.use((err,req,res,next)=>{
-  let {statusCode=500, message="Something went wrong!"} = err;
-  // say.speak(message, 'Samantha', 1.0, (error) => {
-  //   if (error) {
-  //       console.error("TTS Error:", error);
-  //   }
-  // });
+// app.use((err,req,res,next)=>{
+//   let {statusCode=500, message="Something went wrong!"} = err;
+//   // say.speak(message, 'Samantha', 1.0, (error) => {
+//   //   if (error) {
+//   //       console.error("TTS Error:", error);
+//   //   }
+//   // });
 
-  req.flash("error", `${message}`);
-  console.log("error",message);
-  let redirectUrl = req.originalUrl || "/";
+//   req.flash("error", `${message}`);
+//   console.log("error",message);
+//   let redirectUrl = req.originalUrl || "/";
+//   res.status(statusCode).redirect(redirectUrl);
+
+// });    
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message = "Something went wrong!" } = err;
+  
+  if (req.flash) {
+    req.flash("error", message);
+  }
+
+  console.log("error", message);
+  const redirectUrl = req.originalUrl || "/";
   res.status(statusCode).redirect(redirectUrl);
-
-});    
+});
 
