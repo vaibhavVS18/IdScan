@@ -50,6 +50,17 @@ const say = require("say");
 // -> using session store
 const MongoStore = require("connect-mongo");
 
+
+
+const multer = require("multer");
+const xlsx = require("xlsx");
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+
+const client = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+const fromNumber = +16084548458;
 //................................................................................................
 
 app.set("view engine","ejs");
@@ -137,6 +148,27 @@ app.use("/edit/:roll_no", editRouter);
 app.use("/", listRouter);
 
 
+
+app.post('/send-messages-twilio', async (req, res) => {
+  const { students } = req.body;
+
+  try {
+    for (let student of students) {
+      await client.messages.create({
+        body: 'Reminder: You have not returned to college. Please report back or contact the warden.',
+        from: fromNumber,
+        to: student.phone
+      });
+    }
+
+    res.send('Messages sent successfully.');
+  } catch (error) {
+    console.error('Twilio Error:', error);
+    res.status(500).send('Error sending messages.');
+  }
+});
+
+
 app.get("/login",wrapAsync(async(req,res)=>{
   await Temp.deleteMany({});
   res.render("login.ejs");
@@ -180,6 +212,21 @@ app.post("/addStudent",ensureAuthenticated, isOwner, wrapAsync(async (req, res, 
   } catch (err) {
     next(err);
   }
+}));
+
+app.post("/uploadExcel", ensureAuthenticated, isOwner, upload.single("excelFile"), wrapAsync(async (req, res, next) => {
+  const buffer = req.file.buffer; // 🔹 File contents as a Buffer
+  const workbook = xlsx.read(buffer, { type: "buffer" }); // 🔹 Parse buffer into workbook
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  let students = xlsx.utils.sheet_to_json(sheet); // 🔹 Convert to JSON array
+
+  students = students.map(student => ({
+    ...student,
+    email: `${student.roll_no}@iiitu.ac.in`
+  }));
+
+  await Student.insertMany(students); // 🔹 Save all to DB
+  res.redirect("/list");
 }));
 
 
